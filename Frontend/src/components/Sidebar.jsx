@@ -33,7 +33,7 @@ const Sidebar = () => {
           to="/friends"
           className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case ${
             currentPath === "/friends" ? "btn-active" : ""
-          }`}
+          }`} 
         >
           <UsersIcon className="size-5 text-base-content opacity-70" />
           <span>Friends</span>
@@ -55,7 +55,11 @@ const Sidebar = () => {
         <div className="flex items-center gap-3">
           <div className="avatar">
             <div className="w-10 rounded-full">
-              <img src={authUser?.profilePic} alt="User Avatar" />
+              {authUser?.profilePic ? (
+                <img src={authUser.profilePic} alt="User Avatar" />
+              ) : (
+                <img src="/default-avatar.png" alt="Default Avatar" />
+              )}
             </div>
           </div>
           <div className="flex-1">

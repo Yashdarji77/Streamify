@@ -10,11 +10,11 @@ const SignupPage = () => {
     password: "",
   });
 
-  const {isPending , error , signUpMutation} = useSignUp();
+  const {isPending , error , signupMutation} = useSignUp();
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    signUpMutation(signupData);
+    signupMutation(signupData);
   };
 
   return (

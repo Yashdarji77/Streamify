@@ -121,9 +121,10 @@ const HomePage = () => {
                   >
                     <div className="card-body p-5 space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="avatar size-16 rounded-full">
-                          <img src={user.profilePic} alt={user.fullName} />
-                        </div>
+                        <img
+                          src={user.profilePic || "/default-avatar.png"}
+                          alt={user.fullName || "User Avatar"}
+                        />
 
                         <div>
                           <h3 className="font-semibold text-lg">

@@ -11,7 +11,6 @@ const Navbar = () => {
 
   const { logoutMutation } = useLogout();
 
-
   return (
     <nav className="bg-base-200 border-b border-base-300 sticky top-0 z-30 h-16 flex items-center">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,7 +39,10 @@ const Navbar = () => {
 
           <div className="avatar">
             <div className="w-9 rounded-full">
-              <img src={authUser?.profilePic} alt="User Avatar" rel="noreferrer" />
+              <img
+                src={authUser?.profilePic || "/default-avatar.png"}
+                alt="User Avatar"
+              />
             </div>
           </div>
 
