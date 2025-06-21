@@ -123,7 +123,7 @@ const HomePage = () => {
                       <div className="flex items-center gap-3">
                         <img
                           src={user.profilePic || "/default-avatar.png"}
-                          alt={user.fullName || "User Avatar"}
+                          alt={user.fullName}
                         />
 
                         <div>

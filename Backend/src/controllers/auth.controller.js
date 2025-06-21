@@ -115,10 +115,10 @@ export async function logout(req, res) {
 export async function onboard(req, res) {
   try {
     const userId = req.user._id;
-    const { fullName, bio, nativeLanguage, learningLanguage, location } =
+    const { fullName, bio, nativeLanguage, learningLanguage, location , profilePic } =
       req.body;
 
-    if (!bio || !nativeLanguage || !learningLanguage || !location) {
+    if (!profilePic || !bio || !nativeLanguage || !learningLanguage || !location) {
       return res.status(400).json({
         message: "All fields are required",
         missingFields: [
@@ -127,6 +127,7 @@ export async function onboard(req, res) {
           !nativeLanguage && "nativeLanguage",
           !learningLanguage && "learningLanguage",
           !location && "location",
+          !profilePic && "profilePic",
         ].filter(Boolean),
       });
     }
@@ -152,7 +153,10 @@ export async function onboard(req, res) {
       });
       console.log(`Stream user updated for ${updatedUser.fullName}`);
     } catch (error) {
-      console.error("Error upserting user in Stream during onboarding:", streamError.message);
+      console.error(
+        "Error upserting user in Stream during onboarding:",
+        streamError.message
+      );
       return res.status(500).json({
         message: "Failed to update user in Stream",
       });
@@ -164,7 +168,6 @@ export async function onboard(req, res) {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
-
 
 export async function forgotPassword(req, res) {
   try {
@@ -183,10 +186,8 @@ export async function forgotPassword(req, res) {
       success: true,
       message: "Password reset instructions have been sent to your email",
     });
-    
   } catch (error) {
     console.error("Error during forgot password:", error);
     return res.status(500).json({ message: "Internal server error" });
-    
   }
 }

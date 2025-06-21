@@ -81,7 +81,6 @@ const OnboardingPage = () => {
                 <span className="text-sm text-base-content">
                   Profile Picture
                 </span>
-                <span className="text-error ml-1">*</span>
                 {!formState.profilePic && (
                   <p className="text-xs text-error mt-1">
                     Profile picture is required
