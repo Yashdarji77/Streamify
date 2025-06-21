@@ -121,10 +121,18 @@ const HomePage = () => {
                   >
                     <div className="card-body p-5 space-y-4">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={user.profilePic || "/default-avatar.png"}
-                          alt={user.fullName}
-                        />
+                        <div className="avatar">
+                          <div className="w-12 h-12 rounded-full overflow-hidden">
+                            <img
+                              src={user.profilePic || "/default-avatar.png"}
+                              alt={user.fullName}
+                              className="object-cover w-full h-full"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                              }}
+                            />
+                          </div>
+                        </div>
 
                         <div>
                           <h3 className="font-semibold text-lg">
@@ -138,7 +146,6 @@ const HomePage = () => {
                           )}
                         </div>
                       </div>
-
                       {/* Languages with flags */}
                       <div className="flex flex-wrap gap-1.5">
                         <span className="badge badge-secondary">
@@ -150,11 +157,9 @@ const HomePage = () => {
                           Learning: {capitialize(user.learningLanguage)}
                         </span>
                       </div>
-
                       {user.bio && (
                         <p className="text-sm opacity-70">{user.bio}</p>
                       )}
-
                       {/* Action button */}
                       <button
                         className={`btn w-full mt-2 ${
