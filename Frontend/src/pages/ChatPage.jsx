@@ -39,28 +39,31 @@ const ChatPage = () => {
   const clientRef = useRef(null);
   
   useEffect(() => {
-    setLoading(true);
-    
+    if (!tokenData?.token || !authUser) {
+      setLoading(true);
+      return;
+    }
+
     const initChat = async () => {
-      if (!tokenData?.token || !authUser) {
-        setLoading(false);
-        return;
-      }
+      setLoading(true);
 
       try {
-        console.log("Initializing stream chat client...");
+        // console.log("Initializing stream chat client...");
         
-        // Clean up existing connection first
         if (clientRef.current) {
-          // console.log("Disconnecting previous stream chat client...");
-          await clientRef.current.disconnectUser();
-          setChatClient(null);
-          setChannel(null);
+          console.log("Cleaning up existing client...");
+          try {
+            await clientRef.current.disconnectUser();
+          } catch (err) {
+            console.log("Error during disconnect:", err);
+          }
+          clientRef.current = null;
         }
 
-        const client = StreamChat.getInstance(STREAM_API_KEY);
+        const client = new StreamChat(STREAM_API_KEY);
         clientRef.current = client;
-
+        
+        // Connect user to Stream
         await client.connectUser(
           {
             id: authUser._id,
@@ -70,19 +73,33 @@ const ChatPage = () => {
           tokenData.token
         );
         
-        const channelId = [authUser._id, targetUserId].sort().join("-");
+        if (client.user) {
+          console.log("User connected successfully:", client.user.id);
+          
+          const channelId = [authUser._id, targetUserId].sort().join("-");
+          const currChannel = client.channel("messaging", channelId, {
+            members: [authUser._id, targetUserId],
+          });
 
-        const currChannel = client.channel("messaging", channelId, {
-          members: [authUser._id, targetUserId],
-        });
-
-        await currChannel.watch();
-
-        setChatClient(client);
-        setChannel(currChannel);
+          await currChannel.watch();
+          
+          setChatClient(client);
+          setChannel(currChannel);
+        } else {
+          throw new Error("Failed to connect user to Stream");
+        }
       } catch (error) {
         console.error("Error initializing chat:", error);
         toast.error("Could not connect to chat. Please try again.");
+        
+        if (clientRef.current) {
+          try {
+            await clientRef.current.disconnectUser();
+          } catch (e) {
+            console.log("Cleanup error:", e);
+          }
+          clientRef.current = null;
+        }
       } finally {
         setLoading(false);
       }
@@ -92,10 +109,13 @@ const ChatPage = () => {
 
     return () => {
       if (clientRef.current) {
-        // console.log("Disconnecting stream chat client on cleanup...");
-        clientRef.current.disconnectUser().catch(err => {
-          console.error("Error disconnecting user:", err);
-        });
+        console.log("Disconnecting on unmount");
+        const client = clientRef.current;
+        setTimeout(() => {
+          client.disconnectUser()
+            .then(() => console.log("Disconnected successfully"))
+            .catch(err => console.error("Error during cleanup:", err));
+        }, 0);
       }
     };
   }, [tokenData, authUser, targetUserId]);
