@@ -72,6 +72,18 @@ const ChatPage = () => {
     };
 
     initChat();
+
+    // Cleanup function to disconnect the client when component unmounts or dependencies change
+    return () => {
+      if (chatClient) {
+        console.log("Disconnecting stream chat client...");
+        chatClient.disconnectUser().then(() => {
+          console.log("Disconnected stream chat client");
+        });
+        setChatClient(null);
+        setChannel(null);
+      }
+    };
   }, [tokenData, authUser, targetUserId]);
 
   const handleVideoCall = () => {
