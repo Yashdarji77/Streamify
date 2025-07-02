@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
 import { useQuery } from "@tanstack/react-query";
@@ -36,14 +36,30 @@ const ChatPage = () => {
     enabled: !!authUser, 
   });
 
+  const clientRef = useRef(null);
+  
   useEffect(() => {
+    setLoading(true);
+    
     const initChat = async () => {
-      if (!tokenData?.token || !authUser) return;
+      if (!tokenData?.token || !authUser) {
+        setLoading(false);
+        return;
+      }
 
       try {
         console.log("Initializing stream chat client...");
+        
+        // Clean up existing connection first
+        if (clientRef.current) {
+          // console.log("Disconnecting previous stream chat client...");
+          await clientRef.current.disconnectUser();
+          setChatClient(null);
+          setChannel(null);
+        }
 
         const client = StreamChat.getInstance(STREAM_API_KEY);
+        clientRef.current = client;
 
         await client.connectUser(
           {
@@ -53,6 +69,7 @@ const ChatPage = () => {
           },
           tokenData.token
         );
+        
         const channelId = [authUser._id, targetUserId].sort().join("-");
 
         const currChannel = client.channel("messaging", channelId, {
@@ -73,15 +90,12 @@ const ChatPage = () => {
 
     initChat();
 
-    // Cleanup function to disconnect the client when component unmounts or dependencies change
     return () => {
-      if (chatClient) {
-        console.log("Disconnecting stream chat client...");
-        chatClient.disconnectUser().then(() => {
-          console.log("Disconnected stream chat client");
+      if (clientRef.current) {
+        // console.log("Disconnecting stream chat client on cleanup...");
+        clientRef.current.disconnectUser().catch(err => {
+          console.error("Error disconnecting user:", err);
         });
-        setChatClient(null);
-        setChannel(null);
       }
     };
   }, [tokenData, authUser, targetUserId]);
